@@ -20,7 +20,7 @@ body {
 .display-box {
     grid-area: 1 / 1 / 5 / 5;
     background-color: #eeeeff;
-    padding: 30px 10px 0 0;
+    padding: 10px 10px 0 0;
     border-radius: 5px;
     font-size: 25px;
     text-align: right;
@@ -33,7 +33,7 @@ body {
     font-size: 20px;
 }
 
-#operators {
+.operators {
     background-color: #F2BD69;
 }
 
