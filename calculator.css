@@ -18,9 +18,10 @@ body {
 }
 
 .display-box {
-    grid-area: 1 / 1 / 5 / 5;
+    grid-area: 1 / 1 / span 5 / span 4;
+    min-height: 50px;
     background-color: #eeeeff;
-    padding: 10px 10px 0 0;
+    padding: 25px 10px 0 0;
     border-radius: 5px;
     font-size: 25px;
     text-align: right;
