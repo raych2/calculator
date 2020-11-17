@@ -1,26 +1,26 @@
-let numbers = document.querySelectorAll('.numbers');
-let operators = document.querySelectorAll('.operators');
-let displayValue = document.querySelector('.current-nums');
-let equals = document.getElementById('equals');
-let allClear = document.getElementById('ac');
-let clear = document.getElementById('clear');
-let decimal = document.getElementById('decimal');
-let sign = document.getElementById('sign');
+const numbers = document.querySelectorAll('.numbers');
+const operators = document.querySelectorAll('.operators');
+const displayValue = document.querySelector('.current-nums');
+const equals = document.getElementById('equals');
+const allClear = document.getElementById('ac');
+const clear = document.getElementById('clear');
+const decimal = document.getElementById('decimal');
+const sign = document.getElementById('sign');
 
-let currentNum = '';
-let previousNum = '';
+let firstNum = '';
+let secondNum = '';
 let operator = '';
-let totalValue = 0;
+let totalValue = '';
 
-//enable/disable buttons
+//Enable or disable calculator buttons
 let numbersEnabled = true;
 let operatorsEnabled = false;
-let decimalEnabled = true;
-let clearEnabled = true;
+let signEnabled = true;
+let decimalEnabled = false;
+let clearEnabled = false;
+let equalsEnabled = false;
 
-displayValue.innerText = '';
-
-//math operators
+//Math operators
 function add (x,y) {
     return x + y;
 }
@@ -37,100 +37,148 @@ function divide (x,y) {
     return x / y;
 }
 
-//operate
 function operate(operator,x,y) {
+    x = Number(x);
+    y = Number(y);
+    if (isNaN(x) || isNaN(y)) {
+        numbersEnabled = false;
+        equalsEnabled = false;
+        return 'ERROR!';
+    }
     if (operator === '+') {
         return add(x,y);
     } else if (operator === '-') {
         return subtract(x,y);
     } else if (operator === '*') {
         return multiply(x,y);
+    } else if (operator === '/' && (x === 0 || y === 0)) {
+        return "Nice try!";
     } else {
         return divide(x,y);
     }
 }
 
-numbers.forEach(num => {
-    num.addEventListener('click', function(e) {
-        if (numbersEnabled) {
-            if (operator === '') {
-                operatorsEnabled = true;
-                displayValue.innerText += num.textContent;
-                currentNum = +(displayValue.innerText);
-            } else if (previousNum) {
-                displayValue.innerText += num.textContent;
-                currentNum = +(displayValue.innerText);
-            } else {
-                displayValue.innerText += num.textContent;
-                currentNum = +(displayValue.innerText);
-            }
-        }
-    });
-});
 
-operators.forEach(op => {
-    op.addEventListener('click', function(e) {
-        if (operatorsEnabled) {
-            operator = op.textContent;
-            previousNum = currentNum;
-            currentNum = '';
-            decimalEnabled = true;
-            numbersEnabled = true;
-            displayValue.innerText = '';
-        } 
-    })
-});
-
-equals.addEventListener('click', function(e) {
-    if (operator === '/' && currentNum === 0) {
-        displayValue.innerText = 'Nice try!';
-        return;
-    } else if (currentNum === totalValue) {
+//Any clicked number buttons will populate the display
+function updateDisplay(e) {
+    //Add limit to prevent overflow of numbers
+    if (displayValue.textContent.length > 10) {
+        displayValue.textContent = "--SCREEN LIMIT--";
         numbersEnabled = false;
-        return;
-    }
-
-    if (operator && previousNum && currentNum) {
-        totalValue = operate(operator, previousNum, currentNum);
-        numbersEnabled = false;
-        if (totalValue.length > 8) {
-            totalValue = totalValue.toFixed(8);
-        }
-        displayValue.innerText = totalValue;
-        currentNum = totalValue;
-        operator = '';
+        operatorsEnabled = false;
+        signEnabled = false;
+        decimalEnabled = false;
         clearEnabled = false;
+        equalsEnabled = false;
+        return;
     }
-});
+    if (numbersEnabled) {
+        //operatorsEnabled = true;
+        displayValue.innerText = '';
+        displayValue.innerText += e.target.textContent;
+        numbersEnabled = false;
+        operatorsEnabled = true;
+        decimalEnabled = true;
+        signEnabled = true;
+        clearEnabled = true;
+        equalsEnabled = false;
+    } else if (displayValue.innerText !== "--SCREEN LIMIT--" || displayValue.innerText !== "ERROR!" || displayValue.innerText !== "NaN"){
+        displayValue.innerText += e.target.textContent;
+        numbersEnabled = false;
+        decimalEnabled = true;
+        signEnabled = true;
+        clearEnabled = true;
+        equalsEnabled = false;
+    } 
+}
 
-allClear.addEventListener('click', function(e) {
-    currentNum = '';
-    previousNum = '';
+
+//Assign values and operators to variables according to the display
+function getOperator(e) {
+    if (operatorsEnabled) {
+        if (firstNum === '') {
+            operator = e.target.textContent;
+            operatorsEnabled = false;
+            clearEnabled = false;
+            firstNum = displayValue.innerText;
+            //Display current equation in calculator
+            displayValue.innerText = `${firstNum} ${operator}`;
+            numbersEnabled = true;
+            equalsEnabled = false;
+        } else {
+            secondNum = displayValue.innerText;
+            totalValue = operate(operator, firstNum, secondNum);
+            operator = e.target.textContent;
+            operatorsEnabled = false;
+            firstNum = totalValue;
+            displayValue.innerText = `${totalValue} ${operator}`;
+            numbersEnabled = true;
+        }
+    }
+}
+
+function solveEquation() {
+    if (firstNum !== '' && secondNum !== "--SCREEN LIMIT--") {
+        secondNum = displayValue.innerText;
+        totalValue = operate(operator, firstNum, secondNum);
+        displayValue.innerText = totalValue;
+        equalsEnabled = false;
+        firstNum = '';
+        secondNum = '';
+        signEnabled = true;
+        numbersEnabled = true;
+        clearEnabled = false;
+        decimalEnabled = false;
+    }
+}
+
+function clearAllValues() {
+    firstNum = '';
+    secondNum = '';
     operator = '';
-    totalValue = 0;
-    displayValue.innerText = '';
-    decimalEnabled = true;
+    totalValue = '';
+    displayValue.innerText = '0';
     numbersEnabled = true;
+    operatorsEnabled = false;
+    signEnabled = true;
+    decimalEnabled = true;
     clearEnabled = true;
-});
+}
 
-clear.addEventListener('click', function(e) {
+function clearMostRecentVal() {
     if (clearEnabled) {
         displayValue.innerText = displayValue.innerText.slice(0,-1);
-        currentNum = +(displayValue.innerText);
     }
-});
+}
 
-decimal.addEventListener('click', function(e) {
-    if (decimalEnabled) {
+function addDecimal() {
+    if (decimalEnabled && !displayValue.innerText.includes('.')) {
         displayValue.innerText += '.';
         decimalEnabled = false;
     }
-})
+}
 
-sign.addEventListener('click', function(e) {
-    if (displayValue.innerText !== '') {
-        currentNum *= -1;
-        displayValue.innerText = currentNum;
+function changeSign() {
+    if (signEnabled) {
+        if (displayValue.innerText !== '') {
+            let negativeNum = displayValue.innerText;
+            negativeNum = negativeNum * -1;
+            displayValue.innerText = negativeNum;
+        } 
     }
-})
+}
+
+numbers.forEach(num => {
+    num.addEventListener('click', updateDisplay);
+       
+});
+
+operators.forEach(op => {
+    op.addEventListener('click', getOperator);
+});
+
+equals.addEventListener('click', solveEquation); 
+allClear.addEventListener('click', clearAllValues);
+clear.addEventListener('click', clearMostRecentVal);
+decimal.addEventListener('click', addDecimal);
+sign.addEventListener('click', changeSign);
