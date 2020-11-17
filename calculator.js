@@ -18,7 +18,6 @@ let operatorsEnabled = false;
 let signEnabled = true;
 let decimalEnabled = false;
 let clearEnabled = false;
-let equalsEnabled = false;
 
 //Math operators
 function add (x,y) {
@@ -42,7 +41,6 @@ function operate(operator,x,y) {
     y = Number(y);
     if (isNaN(x) || isNaN(y)) {
         numbersEnabled = false;
-        equalsEnabled = false;
         return 'ERROR!';
     }
     if (operator === '+') {
@@ -61,19 +59,17 @@ function operate(operator,x,y) {
 
 //Any clicked number buttons will populate the display
 function updateDisplay(e) {
-    //Add limit to prevent overflow of numbers
-    if (displayValue.textContent.length > 10) {
-        displayValue.textContent = "--SCREEN LIMIT--";
+    //Add limit to prevent overflow of numbers and any addition to the limit message
+    if (displayValue.textContent.length > 12) {
+        displayValue.textContent = "—SCREEN LIMIT—";
         numbersEnabled = false;
         operatorsEnabled = false;
         signEnabled = false;
         decimalEnabled = false;
         clearEnabled = false;
-        equalsEnabled = false;
         return;
     }
     if (numbersEnabled) {
-        //operatorsEnabled = true;
         displayValue.innerText = '';
         displayValue.innerText += e.target.textContent;
         numbersEnabled = false;
@@ -81,14 +77,12 @@ function updateDisplay(e) {
         decimalEnabled = true;
         signEnabled = true;
         clearEnabled = true;
-        equalsEnabled = false;
-    } else if (displayValue.innerText !== "--SCREEN LIMIT--" || displayValue.innerText !== "ERROR!" || displayValue.innerText !== "NaN"){
+    } else if (displayValue.innerText !== "—SCREEN LIMIT—" || displayValue.innerText !== "ERROR!" || displayValue.innerText !== "NaN"){
         displayValue.innerText += e.target.textContent;
         numbersEnabled = false;
         decimalEnabled = true;
         signEnabled = true;
         clearEnabled = true;
-        equalsEnabled = false;
     } 
 }
 
@@ -104,7 +98,6 @@ function getOperator(e) {
             //Display current equation in calculator
             displayValue.innerText = `${firstNum} ${operator}`;
             numbersEnabled = true;
-            equalsEnabled = false;
         } else {
             secondNum = displayValue.innerText;
             totalValue = operate(operator, firstNum, secondNum);
@@ -118,11 +111,10 @@ function getOperator(e) {
 }
 
 function solveEquation() {
-    if (firstNum !== '' && secondNum !== "--SCREEN LIMIT--") {
+    if (firstNum !== '' && secondNum !== "—SCREEN LIMIT—") {
         secondNum = displayValue.innerText;
         totalValue = operate(operator, firstNum, secondNum);
         displayValue.innerText = totalValue;
-        equalsEnabled = false;
         firstNum = '';
         secondNum = '';
         signEnabled = true;
