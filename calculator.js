@@ -33,7 +33,7 @@ function multiply (x,y) {
 }
 
 function divide (x,y) {
-    return x / y;
+    return (x / y);
 }
 
 function operate(operator,x,y) {
@@ -114,7 +114,12 @@ function solveEquation() {
     if (firstNum !== '' && secondNum !== "—SCREEN LIMIT—") {
         secondNum = displayValue.innerText;
         totalValue = operate(operator, firstNum, secondNum);
-        displayValue.innerText = totalValue;
+        //Prevent overflow of display
+        if (totalValue.toString().length >= 10) {
+            displayValue.innerText = totalValue.toPrecision(5);
+        } else {
+            displayValue.innerText = totalValue;
+        }
         firstNum = '';
         secondNum = '';
         signEnabled = true;
